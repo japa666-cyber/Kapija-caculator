@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vertikalni profili</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <img src="images/logo.png" alt="Logo" class="logo">
+  <nav>
+    <ul>
+      <li><a href="index.html">Početna</a></li>
+      <li><a href="kalkulator2.html">Rezna lista</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <h1>Kalkulator vertikalnih profila</h1>
+
+  <form id="profilForm">
+    <label>
+      Dužina kapije (mm):
+      <input type="number" id="duzina" required>
+    </label>
+
+    <label>
+      Profil:
+      <select id="profil">
+        <option value="40">40×40</option>
+        <option value="60">60×60</option>
+      </select>
+    </label>
+
+    <label>
+      Cijena po metru (KM):
+      <input type="number" id="cijena" step="0.01" required>
+    </label>
+
+    <button type="submit">Izračunaj</button>
+  </form>
+
+  <div id="rezultat"></div>
+  <pre id="skica"></pre>
+</main>
+
+<script src="js/main.js"></script>
+</body>
+</html>
