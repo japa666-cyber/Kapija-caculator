@@ -1,27 +1,163 @@
 <!DOCTYPE html>
 <html lang="hr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kalkulator metalnih kapija</title>
-  <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISO okvir - Profil 50x50x1.5</title>
+
+<style>
+body { background: #eee; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; }
+.panel {
+  background: #fff; padding: 20px; max-width: 600px;
+  margin: 10px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  border-radius: 10px;
+}
+.input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+.input-group { display: flex; flex-direction: column; }
+label { font-size: 12px; font-weight: bold; margin-bottom: 4px; color: #555; }
+input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+button {
+  width: 100%; padding: 12px; cursor: pointer;
+  background: #2980b9; color: #fff; border: none;
+  border-radius: 4px; font-weight: bold; transition: 0.3s;
+}
+button:hover { background: #2471a3; }
+canvas { display: block; margin: 20px auto; background: #fff; border: 1px solid #ddd; }
+#calc {
+  margin-top: 15px; padding: 15px;
+  background: #fdfefe; border-left: 5px solid #2980b9;
+  font-size: 14px; line-height: 1.6;
+}
+.weight-highlight { color: #e67e22; font-size: 18px; }
+</style>
 </head>
+
 <body>
 
-<header class="site-header">
-  <img src="images/logo.png" alt="Logo" class="logo">
-  <nav>
-    <ul>
-      <li><a href="kalkulator1.html">Vertikalni profili</a></li>
-      <li><a href="kalkulator2.html">Rezna lista</a></li>
-    </ul>
-  </nav>
-</header>
+<div class="panel">
+  <div class="input-grid">
+    <div class="input-group">
+      <label>Širina W (mm)</label>
+      <input id="W" type="number" value="4000">
+    </div>
+    <div class="input-group">
+      <label>Visina H (mm)</label>
+      <input id="H" type="number" value="2000">
+    </div>
+    <div class="input-group">
+      <label>Profil P (mm)</label>
+      <input id="P" type="number" value="50">
+    </div>
+    <div class="input-group">
+      <label>Broj unutarnjih vertikala</label>
+      <input id="numV" type="number" value="4">
+    </div>
+  </div>
+  <button onclick="draw()">IZRAČUNAJ I NACRTAJ</button>
+  
+  <div id="calc"></div>
+</div>
 
-<main>
-  <h1>Dobrodošli u kalkulator metalnih kapija</h1>
-  <p>Izaberite kalkulator iz menija.</p>
-</main>
+<canvas id="cv" width="650" height="450"></canvas>
+
+<script>
+const c = document.getElementById("cv");
+const ctx = c.getContext("2d");
+
+function arrow(x1,y1,x2,y2){
+  const a = Math.atan2(y2-y1,x2-x1);
+  const l = 7;
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-l*Math.cos(a-0.5), y2-l*Math.sin(a-0.5));
+  ctx.lineTo(x2-l*Math.cos(a+0.5), y2-l*Math.sin(a+0.5));
+  ctx.fill();
+}
+
+function dim(x1,y1,x2,y2,text,tx,ty, color="#333", small=false){
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 1;
+  ctx.font = small ? "10px Arial" : "bold 12px Arial";
+  ctx.beginPath();
+  ctx.moveTo(x1,y1);
+  ctx.lineTo(x2,y2);
+  ctx.stroke();
+  arrow(x2,y2,x1,y1);
+  arrow(x1,y1,x2,y2);
+  ctx.fillText(text, tx, ty);
+}
+
+function draw(){
+  ctx.clearRect(0,0,c.width,c.height);
+
+  const W = +document.getElementById("W").value;
+  const H = +document.getElementById("H").value;
+  const P = +document.getElementById("P").value;
+  const numV = +document.getElementById("numV").value;
+  
+  // Postavka težine za 50x50x1.5mm prema tvom unosu
+  const gewMtr = 0.79; 
+
+  const scale = Math.min(500/W, 300/H);
+  const ow = W*scale, oh = H*scale, p = P*scale;
+  const x = (c.width-ow)/2, y = (c.height-oh)/2;
+
+  const svijetlo_mm = (W - (numV + 2) * P) / (numV + 1);
+  const svijetlo_px = svijetlo_mm * scale;
+
+  // Crtanje
+  ctx.fillStyle="#f8f9fa";
+  ctx.fillRect(x,y,ow,oh);
+  ctx.clearRect(x+p,y+p,ow-2*p,oh-2*p);
+  ctx.strokeStyle="#2c3e50";
+  ctx.lineWidth=2;
+  ctx.strokeRect(x,y,ow,oh);
+  ctx.strokeRect(x+p,y+p,ow-2*p,oh-2*p);
+
+  // Kote okvira
+  dim(x, y-35, x+ow, y-35, `${W} mm`, x+ow/2-20, y-40);
+  dim(x-45, y, x-45, y+oh, `${H} mm`, x-85, y+oh/2);
+
+  // Razmaci
+  let currentX = x + p; 
+  for(let i=0; i <= numV; i++) {
+    const kX1 = currentX;
+    const kX2 = currentX + svijetlo_px;
+    const kY = y + oh - p - 15;
+    
+    dim(kX1, kY, kX2, kY, `${svijetlo_mm.toFixed(1)}`, kX1 + (svijetlo_px/2) - 15, kY - 5, "#2980b9", true);
+
+    if(i < numV) {
+      const vPosX = kX2;
+      ctx.fillStyle="#bdc3c7";
+      ctx.fillRect(vPosX, y + p, p, oh - 2*p);
+      ctx.strokeRect(vPosX, y + p, p, oh - 2*p);
+      currentX = vPosX + p;
+    }
+  }
+
+  // Proračun
+  const unutarnja_v = H - (2*P);
+  const ukupno_m = (2*W + 2*H + numV*unutarnja_v) / 1000;
+  const ukupno_kg = ukupno_m * gewMtr;
+
+  document.getElementById("calc").innerHTML = `
+    <strong>Specifikacija za profil 50x50x1,5 mm:</strong><br>
+    • Materijal: Inox 1.4301<br>
+    • Ukupna dužina profila: <strong>${ukupno_m.toFixed(2)} m</strong><br>
+    • Zadana težina: 0,79 kg/m<br>
+    <hr>
+    • UKUPNA TEŽINA OKVIRA: <strong class="weight-highlight">${ukupno_kg.toFixed(2)} kg</strong><br>
+    <hr>
+    • Svijetli razmak polja: <strong>${svijetlo_mm.toFixed(1)} mm</strong><br>
+    • Rez unutarnjih vertikala: ${unutarnja_v} mm<br>
+    • Dijagonala (vaga): ${Math.sqrt(W*W+H*H).toFixed(1)} mm
+  `;
+}
+
+draw();
+</script>
 
 </body>
 </html>
