@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ISO okvir - Profil 50x50x1.5</title>
+<title>ISO okvir - Profil</title>
 
 <style>
 body { background: #eee; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; }
@@ -97,9 +97,9 @@ function draw(){
   const numV = +document.getElementById("numV").value;
   
   // Postavka težine za 50x50x1.5mm prema tvom unosu
-  const gewMtr = 0.79; 
+  const gewMtr = 0.5; 
 
-  const scale = Math.min(500/W, 300/H);
+  const scale = Math.min(500/W, 500/H);
   const ow = W*scale, oh = H*scale, p = P*scale;
   const x = (c.width-ow)/2, y = (c.height-oh)/2;
 
@@ -143,10 +143,10 @@ function draw(){
   const ukupno_kg = ukupno_m * gewMtr;
 
   document.getElementById("calc").innerHTML = `
-    <strong>Specifikacija za profil  (P)x(P)x2.00 mm:</strong><br>
+    <strong>Specifikacija za profil  ${P}x{P}x2.00 mm:</strong><br>
     • Materijal: Inox 1.4301<br>
     • Ukupna dužina profila: <strong>${ukupno_m.toFixed(2)} m</strong><br>
-    • Zadana težina: 0,79 kg/m<br>
+    • Zadana težina: 0,5 kg/m<br>
     <hr>
     • UKUPNA TEŽINA OKVIRA: <strong class="weight-highlight">${ukupno_kg.toFixed(2)} kg</strong><br>
     <hr>
