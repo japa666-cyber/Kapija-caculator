@@ -97,7 +97,7 @@ function draw(){
   const numV = +document.getElementById("numV").value;
   
   // Postavka težine za 50x50x1.5mm prema tvom unosu
-  const gewMtr = 0.5; 
+  const gewMtr = 0.00785 * ((P * P) - ((P - 2 * 2) * (P - 2 * 2)));
 
   const scale = Math.min(500/W, 500/H);
   const ow = W*scale, oh = H*scale, p = P*scale;
